@@ -1,14 +1,14 @@
 VatsimSSO
 =========
 
-**Laravel 4 compatible, use [version 2](https://github.com/KHardern/VatsimSSO/tree/develop) for Laravel 5**
+**Laravel 5 compatible, use version 1 for Laravel 4**
 
 The VatsimSSO package integrates with the VATSIM.net Single Sign On, which lets your users log themselves in using their VATSIM ID. This is especially useful for official vACCs and ARTCCs.
 
 Version
 ----
 
-1.0
+2.0.1
 
 Installation
 --------------
@@ -16,12 +16,12 @@ Installation
 Use [Composer](http://getcomposer.org) to install the VatsimSSO and dependencies.
 
 ```sh
-$ composer require vatsim/sso 1.*
+$ composer require vatsim/sso 2.*
 ```
 
 ### Laravel
 #### Set up
-Using VatsimSSO in Laravel is made easy through the use of Service Providers. Add the service provider to your `app/config/app.php` file:
+Using VatsimSSO in Laravel is made easy through the use of Service Providers. Add the service provider to your `config/app.php` file:
 ```php
 'providers' => array(
     // ...
@@ -38,10 +38,12 @@ Followed by the alias:
 ```
 
 #### Configuration file
-Use artisan to publish the configuration file. After running the command you will find the file in `app/config/packages/vatsim/sso/config.php`. Change the settings accordingly.
+Use artisan to publish the configuration file. After running the command you will find the file in `config/vatsim-sso.php`. Change the settings accordingly.
 ```sh
-$ artisan config:publish vatsim/sso
+$ artisan vendor:publish
 ```
+It is __strongly__ recommended you use Laravel's built-in suppport for environment files to protect sensitive data. Additional details in config.php
+
 
 ### Outside Laravel
 Let's first create a configuration file to keep our code clean.
@@ -124,7 +126,7 @@ Optional parameter. If this parameter is ignored and an error occurs, the functi
 ```php
 // Laravel
 return VatsimSSO::login(
-    Config::get('vatsimsso:return'),
+    Config::get('vatsim-sso.return'),
     function($key, $secret, $url) {
         Session::put('vatsimauth', compact('key', 'secret'));
         return Redirect::to($url);
@@ -178,7 +180,7 @@ return VatsimSSO::validate(
     function($user, $request) {
         // At this point we can remove the session data.
         Session::forget('vatsimauth');
-        
+
         Auth::loginUsingId($user->id);
         return Redirect::home();
     },
@@ -197,10 +199,10 @@ $sso->validate(
     function($user, $request) {
         // At this point we can remove the session data.
         unset($_SESSION['vatsimauth']);
-        
+
         // do something to log the user in on your site using the user id
         // $user->id
-        
+
         // Redirect home
         header('Location: /');
         die();
